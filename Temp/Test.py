@@ -13,7 +13,11 @@ import json
 # response = json.loads(response.text)[0]
 # print(response["country"])
 
-response_flag = requests.request("GET",f"https://restcountries.eu/rest/v2/alpha/in")
-print(response_flag.status_code)
-response_flag = json.loads(response_flag.text)
-print(response_flag["name"])
+# response_flag = requests.request("GET",f"https://restcountries.eu/rest/v2/alpha/in")
+# print(response_flag.status_code)
+# response_flag = json.loads(response_flag.text)
+# print(response_flag["name"])
+
+
+a = "Prashant"
+print(a[-3:])
