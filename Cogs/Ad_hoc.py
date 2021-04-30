@@ -111,6 +111,32 @@ class AD_HOC(Cog):
         embed.set_image(url=ctx.author.avatar_url)
         await ctx.send(embed = embed)
 
+    
+    
+    @command()
+    async def botstatus(self, ctx, arg1, arg2):
+        print("Arg1: "+arg1)
+        print("Arg2: "+arg2)
+        if arg1.lower() == "playing":
+            await self.client.change_presence(activity = discord.Game(name=arg2))
+            return
+        elif arg1.lower() == "streaming":
+            await self.client.change_presence(activity = discord.Streaming(name = arg2))
+            return
 
+        elif arg1.lower() == "listening":
+            await self.client.change_presence(activity = discord.Activity( type = discord.ActivityType.listening , name = args2))
+            return
+
+        elif arg1.lower() == "watching":
+            await self.client.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = arg2))
+            return
+        
+ 
+    @command()
+    async def total(self, ctx):
+        await ctx.send("Total count: " + str(len((ctx.guild.members))))
+
+        
 def setup(client):
     client.add_cog(AD_HOC(client))
