@@ -32,5 +32,7 @@ class Tasks(Cog):
         await self.client.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f"{self.total_guildMembers} Members"))
 
 
+    
+
 def setup(client):
     client.add_cog(Tasks(client))
