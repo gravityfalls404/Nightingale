@@ -23,9 +23,16 @@ class AnitAbuse(Cog):
         prediction = predict([msg])
         self.channel = message.channel
 
+        # Profanity check
         if prediction == 1 :
             await message.delete()
             await self.channel.send(f"{message.author.mention} watch your language !!!")
+    
+        #Anti Advertisment
+        if message.content.find("https://discord.gg/")!= -1:    #This message had a discord invite
+            await message.delete()
+            await message.author.send("Promoting is not allowed on the server!")
+
             
 
 
