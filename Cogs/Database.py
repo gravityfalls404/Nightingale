@@ -43,9 +43,9 @@ class Database(Cog):
 
     def updateMemberinDB(self, _id, name, status):
         membercount = self.user_collection.count_documents({"_id": _id})
-        print(membercount)
-        if membercount == 0 :
-            user = {"_id": _id, "username": name, "status": status}
+        if membercount == 0 :   #Memebr with _id does not exist
+            user = {"_id": _id, "username": name, "status": status, "strikes": 0
+            ,"Coins": 10}
             response = self.user_collection.insert_one(user)
             print("Member Created")
         else:

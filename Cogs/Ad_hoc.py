@@ -81,7 +81,6 @@ class AD_HOC(Cog):
             response = requests.request("GET", url=f"https://meme-api.herokuapp.com/gimme/{choice}/10", headers={}, data = {})
             
             if response.status_code!=200:
-                print(response.status_code)
                 await ctx.send(f"**No Memes For you {ctx.author.mention} :P**")
                 return
             response = json.loads(response.text)
@@ -115,8 +114,6 @@ class AD_HOC(Cog):
     
     @command()
     async def botstatus(self, ctx, arg1, arg2):
-        print("Arg1: "+arg1)
-        print("Arg2: "+arg2)
         if arg1.lower() == "playing":
             await self.client.change_presence(activity = discord.Game(name=arg2))
             return

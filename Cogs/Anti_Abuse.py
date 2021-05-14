@@ -1,8 +1,9 @@
+from re import search
 import discord
 from discord.ext.commands import Cog, command
 from discord.ext import tasks
 from profanity_check import predict, predict_prob
-
+import pymongo
 
 """
     This Class handles the anti abuse feature of the bot.
@@ -16,6 +17,7 @@ class AnitAbuse(Cog):
     def __init__(self, client):
         self.client = client
         self.channel = None
+        self.user_collection = self._init_db_("Nightingale", "Users")
 
     @Cog.listener()
     async def on_message(self, message):
@@ -24,8 +26,13 @@ class AnitAbuse(Cog):
         self.channel = message.channel
 
         # Profanity check
-        if prediction == 1 :
+        if prediction == 1 :    #Bad profanity
             await message.delete()
+
+            query = {"_id": message.author.id}
+            new_val = {"$inc": {"strike": 1}}
+            self.user_collection.update_one(query, new_val)
+
             await self.channel.send(f"{message.author.mention} watch your language !!!")
     
         #Anti Advertisment
@@ -33,6 +40,12 @@ class AnitAbuse(Cog):
             await message.delete()
             await message.author.send("Promoting is not allowed on the server!")
 
+    def _init_db_(self, database_name, collection):
+        mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
+        database = mongo_client[database_name]
+        collection = database[collection]
+        
+        return collection
             
 
 
