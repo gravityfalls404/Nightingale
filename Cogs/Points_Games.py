@@ -7,6 +7,8 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog, command
 import requests, json, time
 
+from requests.models import parse_url
+
 class Points_Game(Cog):
     def __init__(self, client):
         self.client = client
@@ -67,9 +69,7 @@ class Points_Game(Cog):
                     await response.add_reaction(emoji)
 
         self.polls.append((response.channel.id, response.id))
-
-
-
+            
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -78,26 +78,30 @@ class Points_Game(Cog):
 
         if payload.message_id in self.start_time:
             message = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+
             flag = True
-            if (payload.member in self.participants[payload.message_id]):
+            if (payload.member.id in self.participants[payload.message_id]):      #if the member has already reacted, remove new reaction
                 flag = False
                 await message.remove_reaction(payload.emoji, payload.member)
+                print("line 86")
 
-            elif(abs(self.start_time[payload.message_id]-time.time())>self.expire_time):
+            elif(abs(self.start_time[payload.message_id]-time.time())>self.expire_time):    #The poll has expired
                 await message.remove_reaction(payload.emoji, payload.member)
+                print("line 90")
                 
-            elif(payload.emoji.name in [reaction.emoji for reaction in message.reactions]):
+            elif(payload.emoji in [reaction.emoji for reaction in message.reactions]):     #If a new type of reaction is added remove it
                 await message.remove_reaction(payload.emoji, payload.member)
+                print("line 94")    
 
             if flag:
-                self.participants[payload.message_id].append(payload.member)
-                
+                self.participants[payload.message_id].append(payload.member.id)    #If the paricipant is new add him to the participants list
+                print("line 98")
 
     def populate_questions(self):
         headers = {
         'Cookie': 'PHPSESSID=3d376b99b1dcc8d1bd5bb3380e52e399'
         }
-        response = requests.request("GET", "https://opentdb.com/api.php?amount=50", headers=headers, data={})
+        response = requests.request("GET", "https://opentdb.com/api.php?amount=5", headers=headers, data={})    #Change this to 50
         
         if response.status_code !=200:
             return False
