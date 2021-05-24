@@ -14,12 +14,14 @@ class Points_Game(Cog):
         self.client = client
         self.questions = []
         self.numbers = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"]
-        self.bin = ["👍","👎"]
+        self.bin = ["👍🏻","👎🏻"]
         self.polls = []
         self.embed_colors = [0x3498db,0x1f8b4c,0x206694,0x9b59b6,0x71368a,0xe91e63,0xad1457,0xf1c40f,0xc27c0e,0xe67e22,0xa84300,0xe74c3c,0x992d22,0x95a5a6,0x95a5a6,0x607d8b,0x607d8b,0x979c9f,0x979c9f,0x546e7a,0x546e7a,0x7289da,0x99aab5,0x36393F]
-        self.start_time = dict()
-        self.expire_time = 3600     #1 hr
+        self.ques_dict = dict()
+        self.expire_time = 60     #1 hr
         self.participants = dict()
+        self.user_collection = self._init_db_("Nightingale", "Users")
+
 
     @command()
     async def quiz(self, ctx):
@@ -58,7 +60,7 @@ class Points_Game(Cog):
             embed.add_field(name = f"{self.bin[1]}.Frue", value="*", inline=False) 
         
         response = await ctx.send(embed = embed)
-        self.start_time[response.id] = time.time()
+        self.ques_dict[response.id] = {"time":time.time(), "ans": indx, "long": (numop==4)}
         self.participants[response.id] = []
         
         if numop == 4: 
@@ -76,7 +78,7 @@ class Points_Game(Cog):
         if payload.member.bot:
             return
 
-        if payload.message_id in self.start_time:
+        if payload.message_id in self.ques_dict:
             message = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
 
             flag = True
@@ -85,7 +87,7 @@ class Points_Game(Cog):
                 await message.remove_reaction(payload.emoji, payload.member)
                 print("line 86")
 
-            elif(abs(self.start_time[payload.message_id]-time.time())>self.expire_time):    #The poll has expired
+            elif(abs(self.ques_dict[payload.message_id]["time"]-time.time())>self.expire_time):    #The poll has expired
                 await message.remove_reaction(payload.emoji, payload.member)
                 print("line 90")
                 
@@ -94,8 +96,36 @@ class Points_Game(Cog):
                 print("line 94")    
 
             if flag:
-                self.participants[payload.message_id].append(payload.member.id)    #If the paricipant is new add him to the participants list
+                self.participants[payload.message_id].append({"participant_Id":payload.member.id, "reaction": payload.emoji.name})    #If the paricipant is new add him to the participants list
                 print("line 98")
+
+
+    # @tasks.loop(hours=1.0)
+    @command()
+    async def results(self, ctx):
+
+        curr_time = time.time()
+        ques_dict_temp = self.ques_dict.copy()
+
+        for id, data in ques_dict_temp.items():
+
+            if abs(self.ques_dict[id]["time"] - curr_time) > self.expire_time:
+                winners = []
+                ans = -1
+                if data["long"]:
+                    ans =self.numbers[data["ans"]]
+                else:
+                    ans = self.bin[data["ans"]]
+
+                for part in self.participants[id]:
+                    if ans == part["reaction"]:
+                        winners.append(part["participant_Id"])
+
+                self.add_points(winners, 100)
+                self.ques_dict.pop(id)
+                self.participants.pop(id)
+
+
 
     def populate_questions(self):
         headers = {
@@ -110,6 +140,25 @@ class Points_Game(Cog):
         self.questions = response["results"]
 
         return True
+
+    def add_points(self, _ids, points):
+        try:
+            query = {"_id": {"$in" : _ids}}
+            new_val = {"$inc": {"Coins":points}}
+            self.user_collection.update(query, new_val, multi=True)    
+            print("Updated")
+            return True
+        except:
+            
+            print("DB Error")
+            return None
+
+    def _init_db_(self, database_name, collection):
+        mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
+        database = mongo_client[database_name]
+        collection = database[collection]
+        
+        return collection
 
 
 

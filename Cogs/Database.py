@@ -55,7 +55,6 @@ class Database(Cog):
             print("Member Updated")
 
     
-        
-
+    
 def setup(client):
     client.add_cog(Database(client))
