@@ -26,8 +26,8 @@ class Tasks(Cog):
         for guild in guilds:
             count += guild.member_count
     
-        self.setStatus.start()
-    @tasks.loop(minutes = 5.0)
+        # self.setStatus.start()
+    @tasks.loop(minutes = 2.0)
     async def setStatus(self):
         await self.client.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f"{self.total_guildMembers} Members"))
 
