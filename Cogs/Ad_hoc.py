@@ -4,11 +4,13 @@ from discord.ext import tasks
 import time
 from googlesearch import search
 import requests
-from Utils import Env
 import json
 from Media import Store
 import random
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class AD_HOC(Cog):
     def __init__(self, client):
@@ -43,7 +45,7 @@ class AD_HOC(Cog):
         url = "https://covid-19-data.p.rapidapi.com/country"
         querystring = {"name":country}
         headers = {
-            'x-rapidapi-key': Env.COVIDAPI_KEY,
+            'x-rapidapi-key': os.getenv("COVIDAPI_KEY"),
             'x-rapidapi-host': "covid-19-data.p.rapidapi.com"
             }
         response = requests.request("GET", url, headers=headers, params=querystring)
@@ -122,7 +124,7 @@ class AD_HOC(Cog):
             return
 
         elif arg1.lower() == "listening":
-            await self.client.change_presence(activity = discord.Activity( type = discord.ActivityType.listening , name = args2))
+            await self.client.change_presence(activity = discord.Activity( type = discord.ActivityType.listening , name = arg2))
             return
 
         elif arg1.lower() == "watching":

@@ -1,9 +1,11 @@
 import discord
-from Utils import Env
 from discord.ext import commands, tasks
 import os
+from dotenv import load_dotenv
 
-Client = commands.Bot(command_prefix=Env.PREFIX, intents = discord.Intents.all())
+load_dotenv()
+
+Client = commands.Bot(command_prefix=os.getenv("PREFIX"), intents = discord.Intents.all())
 
 def Init():
     for filename in os.listdir("./Cogs"):
@@ -12,7 +14,7 @@ def Init():
 
 def Run():
     Init()
-    Client.run(Env.BOT_TOKEN);
+    Client.run(os.getenv("BOT_TOKEN"));
 
 
 @Client.event
