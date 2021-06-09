@@ -22,11 +22,11 @@ class AnitAbuse(Cog):
     @Cog.listener()
     async def on_message(self, message):
         msg = message.content
-        prediction = predict([msg])
+        prediction = predict_prob([msg])
         self.channel = message.channel
 
         # Profanity check
-        if prediction == 1 :    #Bad profanity
+        if prediction >=0.7 :    #Bad profanity
             await message.delete()
 
             query = {"_id": message.author.id}
